@@ -1,0 +1,29 @@
+{
+  "name": "shopify-seeder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "orders.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "seed": "ts-node bin/shopify-seeder.ts",
+    "cleanup": "ts-node bin/shopify-seeder.ts cleanup",
+    "dev": "ts-node-dev bin/shopify-seeder.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@faker-js/faker": "^9.9.0",
+    "axios": "^1.10.0",
+    "chalk": "^4.1.2",
+    "commander": "^14.0.0",
+    "dotenv": "^17.1.0"
+  },
+  "devDependencies": {
+    "@types/commander": "^2.12.5",
+    "@types/node": "^24.0.12",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
