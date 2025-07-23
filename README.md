@@ -177,6 +177,9 @@ npm run seed -- orders 123456 --products=3
 # Create 5 orders with 2 products each
 npm run seed -- orders 123456 --count=5 --products=2
 
+# Create orders with date/time attributes
+npm run seed -- orders 123456 --date-time
+
 # Create orders for specific store
 npm run seed -- orders 123456 --count=3 --store=my-store
 ```
@@ -189,6 +192,7 @@ npm run seed -- orders 123456 --count=3 --store=my-store
 
 - `--count <number>`: Number of orders to create (default: 10)
 - `--products <number>`: Number of products per order (default: 1)
+- `--date-time`: Add Date and Time order attributes (note attributes)
 - `--store <store>`: Store key from .env
 
 ### Cleanup
@@ -282,6 +286,9 @@ All commands follow consistent patterns:
 - **Random Quantities**: 1-3 items per order
 - **Shipping Addresses**: Customer's addresses
 - **Financial Status**: Set to "paid"
+- **Date/Time Attributes**: Optional note attributes with:
+  - **Date**: Random date between tomorrow and next 10 days (YYYY-MM-DD format)
+  - **Time**: Random time slot from: 09:00am-11:00am, 11:00am-01:00pm, 01:00pm-03:00pm, 03:00pm-05:00pm, 05:00pm-07:00pm
 
 ## Rate Limiting
 

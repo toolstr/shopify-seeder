@@ -92,8 +92,9 @@ program
 program
   .command("orders")
   .argument("<customerId>", "Customer ID to create orders for")
-  .option("--count <number>", "How many orders to create", "10")
+  .option("--count <number>", "How many orders to create", "4")
   .option("--products <number>", "How many products per order", "1")
+  .option("--date-time", "Add Date and Time order attributes")
   .option(
     "--store <store>",
     "Store key from .env",
@@ -104,7 +105,8 @@ program
       Number(opts.count),
       opts.store,
       customerId,
-      Number(opts.products)
+      Number(opts.products),
+      opts.dateTime
     )
   );
 

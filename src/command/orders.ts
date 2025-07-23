@@ -2,14 +2,47 @@ import chalk from "chalk";
 import { getStoreConfig } from "../utils/store-config";
 import { createShopifyAPI } from "../utils/api";
 
+// Helper function to generate random date between tomorrow and next 10 days
+function generateRandomDate(): string {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  const maxDate = new Date();
+  maxDate.setDate(maxDate.getDate() + 10);
+
+  const randomTime =
+    tomorrow.getTime() +
+    Math.random() * (maxDate.getTime() - tomorrow.getTime());
+  const randomDate = new Date(randomTime);
+
+  return randomDate.toISOString().split("T")[0]; // Returns YYYY-MM-DD format
+}
+
+// Helper function to generate random time slot
+function generateRandomTimeSlot(): string {
+  const timeSlots = [
+    "09:00am - 11:00am",
+    "11:00am - 01:00pm",
+    "01:00pm - 03:00pm",
+    "03:00pm - 05:00pm",
+    "05:00pm - 07:00pm",
+  ];
+
+  return timeSlots[Math.floor(Math.random() * timeSlots.length)];
+}
+
 export async function seedOrders(
   count: number,
   store: string,
   customerId: string,
-  productsPerOrder: number = 1
+  productsPerOrder: number = 1,
+  addDateTime: boolean = false
 ) {
+  const dateTimeInfo = addDateTime ? " with date/time attributes" : "";
   console.log(
-    chalk.blue(`🛒 Creating ${count} orders for customer ID: ${customerId}`)
+    chalk.blue(
+      `🛒 Creating ${count} orders for customer ID: ${customerId}${dateTimeInfo}`
+    )
   );
   const { shop, token } = getStoreConfig(store);
   const api = createShopifyAPI(shop, token);
@@ -81,6 +114,18 @@ export async function seedOrders(
           ...(shippingAddress && {
             shipping_address: shippingAddress,
           }),
+          ...(addDateTime && {
+            note_attributes: [
+              {
+                name: "Date",
+                value: generateRandomDate(),
+              },
+              {
+                name: "Time",
+                value: generateRandomTimeSlot(),
+              },
+            ],
+          }),
         },
       };
 
@@ -89,9 +134,10 @@ export async function seedOrders(
         const addressInfo = shippingAddress
           ? ` (shipped to ${shippingAddress.city})`
           : "";
+        const dateTimeInfo = addDateTime ? " (with date/time attributes)" : "";
         console.log(
           chalk.green(
-            `✓ Created: ${res.data.order.name} with ${productsPerOrder} product(s)${addressInfo}`
+            `✓ Created: ${res.data.order.name} with ${productsPerOrder} product(s)${addressInfo}${dateTimeInfo}`
           )
         );
       } catch (err: any) {
