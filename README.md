@@ -8,6 +8,7 @@ A powerful CLI tool for seeding test data into Shopify stores for development an
 - 👥 **Customer Seeding**: Create customers with realistic addresses
 - 📚 **Collection Seeding**: Create smart collections based on tags
 - 🛒 **Order Seeding**: Create orders with random variants
+- 📦 **Batch Order Seeding**: Create orders for multiple different customers
 - 🧹 **Cleanup**: Remove seeded data from your store
 - ⚡ **Rate Limiting**: Built-in delays to prevent API throttling
 - 🏪 **Multi-Store Support**: Work with multiple Shopify stores
@@ -195,6 +196,50 @@ npm run seed -- orders 123456 --count=3 --store=my-store
 - `--date-time`: Add Date and Time order attributes (note attributes)
 - `--store <store>`: Store key from .env
 
+### Batch Order Seeding
+
+Create orders for different customers (one order per customer). This command works in two phases:
+
+1. **Phase 1**: Loads x existing customers **with addresses** from your store
+2. **Phase 2**: Creates one order for each loaded customer (all orders include shipping addresses)
+
+```bash
+# Create 10 orders for 10 different customers (default)
+npm run seed -- batch-orders
+
+# Create 5 orders for 5 different customers
+npm run seed -- batch-orders --count=5
+
+# Create orders with 3 products each
+npm run seed -- batch-orders --products=3
+
+# Create 5 orders with 2 products each for 5 different customers
+npm run seed -- batch-orders --count=5 --products=2
+
+# Create orders with date/time attributes
+npm run seed -- batch-orders --date-time
+
+# Create orders for specific store
+npm run seed -- batch-orders --count=3 --store=my-store
+```
+
+**Options:**
+
+- `--count <number>`: Number of orders/customers to create orders for (default: 10)
+- `--products <number>`: Number of products per order (default: 1)
+- `--date-time`: Add Date and Time order attributes (note attributes)
+- `--store <store>`: Store key from .env
+
+**How it works:**
+
+- The command first loads a pool of customers **with addresses** from your store (target: 250 or 2x the requested count, whichever is larger)
+- Only customers that have at least one address are included
+- It then **randomly selects** the specified number of customers from this pool (ensuring different customers each run)
+- It displays all selected customers (with their address count) before proceeding
+- Then it creates one order for each selected customer
+- **All orders are guaranteed to have a shipping address** (randomly selected from the customer's addresses)
+- If there are fewer customers with addresses in the pool than requested, it will create orders for all available customers with addresses and display a warning
+
 ### Cleanup
 
 Remove seeded data from your store:
@@ -312,6 +357,7 @@ shopify-seeder/
 │   │   ├── customer.ts
 │   │   ├── collections.ts
 │   │   ├── orders.ts
+│   │   ├── batch-orders.ts
 │   │   └── cleanup.ts
 │   └── utils/               # Utility functions
 │       ├── api.ts           # Shopify API client

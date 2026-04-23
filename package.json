@@ -8,7 +8,8 @@
     "build": "tsc",
     "seed": "ts-node bin/shopify-seeder.ts",
     "cleanup": "ts-node bin/shopify-seeder.ts cleanup",
-    "dev": "ts-node-dev bin/shopify-seeder.ts"
+    "dev": "ts-node-dev bin/shopify-seeder.ts",
+    "batch": "ts-node bin/batch-customers-orders.ts"
   },
   "keywords": [],
   "author": "",

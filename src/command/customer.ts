@@ -3,6 +3,7 @@ import chalk from "chalk";
 import { getStoreConfig } from "../utils/store-config";
 import { createShopifyAPI } from "../utils/api";
 import { getRandomAddresses } from "../utils/addresses";
+import { withRetry } from "../utils/retry";
 
 export async function seedCustomer(
   email: string,
@@ -45,6 +46,13 @@ export async function seedCustomer(
     );
   }
 
+  // Generate 10-digit phone number (first digit 1-9, rest 0-9)
+  const generatePhoneNumber = (): string => {
+    const firstDigit = Math.floor(Math.random() * 9) + 1; // 1-9
+    const remainingDigits = faker.string.numeric(9); // 9 more digits
+    return `${firstDigit}${remainingDigits}`;
+  };
+
   // Convert addresses to Shopify format
   const shopifyAddresses = addresses.map((address, index) => ({
     address1: address.address1,
@@ -53,7 +61,7 @@ export async function seedCustomer(
     province: address.province,
     country: address.country,
     zip: address.zip,
-    phone: faker.string.numeric(10),
+    phone: generatePhoneNumber(),
     default: index === 0,
   }));
 
@@ -62,14 +70,18 @@ export async function seedCustomer(
       first_name: firstName,
       last_name: lastName,
       email: email,
-      phone: faker.string.numeric(10),
+      phone: generatePhoneNumber(),
       verified_email: true,
       addresses: shopifyAddresses,
     },
   };
 
   try {
-    const res = await api.post("/customers.json", customer);
+    const res = await withRetry(
+      () => api.post("/customers.json", customer),
+      5,
+      "Create customer"
+    );
     console.log(
       chalk.green(`✓ Created customer: ${firstName} ${lastName} (${email})`)
     );
@@ -94,6 +106,8 @@ export async function seedCustomer(
         );
       });
     }
+
+    return res.data.customer.id;
   } catch (err: any) {
     console.error(
       chalk.red(
@@ -102,5 +116,6 @@ export async function seedCustomer(
         }`
       )
     );
+    return null;
   }
 }

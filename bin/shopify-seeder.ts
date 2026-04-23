@@ -8,6 +8,7 @@ import { seedProducts } from "../src/command/products";
 import { seedCustomer } from "../src/command/customer";
 import { seedCollections } from "../src/command/collections";
 import { seedOrders } from "../src/command/orders";
+import { seedBatchOrders } from "../src/command/batch-orders";
 import { cleanupModule } from "../src/command/cleanup";
 
 const program = new Command();
@@ -109,6 +110,43 @@ program
       opts.dateTime
     )
   );
+
+program
+  .command("batch-orders")
+  .description("Create orders for different customers (one order per customer)")
+  .option("--count <number>", "How many orders/customers to create orders for", "10")
+  .option("--products <number>", "How many products per order (fixed count)", "1")
+  .option("--min-products <number>", "Minimum products per order")
+  .option("--max-products <number>", "Maximum products per order")
+  .option("--min-quantity <number>", "Minimum quantity per line item", "1")
+  .option("--max-quantity <number>", "Maximum quantity per line item", "3")
+  .option("--date-time", "Add Date and Time order attributes")
+  .option(
+    "--store <store>",
+    "Store key from .env",
+    process.env.DEFAULT_STORE || ""
+  )
+  .action((opts) => {
+    const fixedProducts = Number(opts.products);
+    const minProducts = opts.minProducts
+      ? Number(opts.minProducts)
+      : fixedProducts;
+    const maxProducts = opts.maxProducts
+      ? Number(opts.maxProducts)
+      : fixedProducts;
+    const minQuantity = Number(opts.minQuantity);
+    const maxQuantity = Number(opts.maxQuantity);
+
+    seedBatchOrders(
+      Number(opts.count),
+      opts.store,
+      minProducts,
+      maxProducts,
+      minQuantity,
+      maxQuantity,
+      opts.dateTime
+    );
+  });
 
 program
   .command("cleanup")

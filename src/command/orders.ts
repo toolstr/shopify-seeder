@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import { getStoreConfig } from "../utils/store-config";
 import { createShopifyAPI } from "../utils/api";
+import { withRetry } from "../utils/retry";
 
 // Helper function to generate random date between tomorrow and next 10 days
 function generateRandomDate(): string {
@@ -49,7 +50,11 @@ export async function seedOrders(
 
   try {
     // Fetch specific customer
-    const customerRes = await api.get(`/customers/${customerId}.json`);
+    const customerRes = await withRetry(
+      () => api.get(`/customers/${customerId}.json`),
+      5,
+      "Fetch customer"
+    );
     // Add delay to prevent throttling
     await new Promise((resolve) => setTimeout(resolve, 500));
     const customer = customerRes.data.customer;
@@ -71,7 +76,11 @@ export async function seedOrders(
     );
 
     // Fetch products
-    const productsRes = await api.get("/products.json?limit=250");
+    const productsRes = await withRetry(
+      () => api.get("/products.json?limit=250"),
+      5,
+      "Fetch products"
+    );
     // Add delay to prevent throttling
     await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -130,7 +139,11 @@ export async function seedOrders(
       };
 
       try {
-        const res = await api.post("/orders.json", order);
+        const res = await withRetry(
+          () => api.post("/orders.json", order),
+          5,
+          "Create order"
+        );
         const addressInfo = shippingAddress
           ? ` (shipped to ${shippingAddress.city})`
           : "";
